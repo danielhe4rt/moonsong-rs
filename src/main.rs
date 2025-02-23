@@ -4,10 +4,10 @@ mod midi;
 
 use midly::Smf;
 use regex::Regex;
-use rustly_lane::midi::get_track_name;
-use rustly_lane::midi::track_name::MoonTrackName;
-use rustly_lane::moonsong::{MoonDifficulty, Moonsong};
-use rustly_lane::parsers::{parse_events, parse_notes, parse_tempo};
+use moonsong::midi::get_track_name;
+use moonsong::midi::track_name::MoonTrackName;
+use moonsong::moonsong::{MoonDifficulty, Moonsong};
+use moonsong::parsers::{parse_events, parse_notes, parse_tempo};
 use std::fmt::Debug;
 use std::str::FromStr;
 
