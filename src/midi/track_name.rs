@@ -2,9 +2,9 @@ use std::str::FromStr;
 
 #[derive(Debug, Hash, Eq, PartialEq)]
 pub enum TrackName {
-    Event,
-    Beat,
+    Meta,
     Events,
+    Beat,
     Venue,
     Guitar,
     Gh1Guitar,
@@ -41,7 +41,6 @@ impl FromStr for TrackName {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "EVENT" => Ok(TrackName::Event),
             "BEAT" => Ok(TrackName::Beat),
             "EVENTS" => Ok(TrackName::Events),
             "VENUE" => Ok(TrackName::Venue),
@@ -73,7 +72,8 @@ impl FromStr for TrackName {
             "PART REAL_KEYS_H" => Ok(TrackName::ProKeysHard),
             "PART REAL_KEYS_M" => Ok(TrackName::ProKeysMedium),
             "PART REAL_KEYS_E" => Ok(TrackName::ProKeysEasy),
-            _ => Err(()),
+            "" => Ok(TrackName::Meta),
+            _ => Err("Not found".parse().unwrap_err()),
         }
     }
 }

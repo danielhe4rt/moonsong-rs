@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use midly::num::u7;
 use crate::midi::track_name::TrackName;
+use midly::num::u7;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 enum Difficulty {
@@ -21,12 +21,21 @@ enum LaneKey {
 }
 
 #[derive(Debug)]
+pub struct TempoMap {
+    pub bpm: f32,   //
+    pub time: u32,  // in delta | delta += event.delta.as_int();
+    pub delta: u32, // in delta
+}
+
+#[derive(Debug)]
 pub struct Moonsong {
-    pub name: String, // name of the song
-    pub resolution: u16, // ticks per beat
-    pub instruments: Vec<Track>,
-    pub events: Vec<TrackEvent>,
-    pub time_in_seconds: u32,
+    pub name: String,       // name of the song
+    pub resolution: u16,    // ticks per beat
+    pub tracks: Vec<Track>, // Instruments w/ notes
+    // TODO: ask related to Events vs Sections
+    pub events: Vec<TrackEvent>,      // Events in the song
+    pub tempo_changes: Vec<TempoMap>, // BPM changes
+    pub time_in_seconds: u32,         // Song length in seconds
 }
 
 impl Moonsong {
@@ -34,8 +43,9 @@ impl Moonsong {
         Self {
             name: String::new(),
             resolution,
-            instruments: Vec::new(),
+            tracks: Vec::new(),
             events: Vec::new(),
+            tempo_changes: Vec::new(),
             time_in_seconds: 0,
         }
     }
