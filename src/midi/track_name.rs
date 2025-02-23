@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 #[derive(Debug, Hash, Eq, PartialEq)]
-pub enum TrackName {
+pub enum MoonTrackName {
     Meta,
     Events,
     Beat,
@@ -36,44 +36,43 @@ pub enum TrackName {
     ProKeysEasy,
 }
 
-impl FromStr for TrackName {
+impl FromStr for MoonTrackName {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "BEAT" => Ok(TrackName::Beat),
-            "EVENTS" => Ok(TrackName::Events),
-            "VENUE" => Ok(TrackName::Venue),
-            "PART GUITAR" => Ok(TrackName::Guitar),
-            "T1 GEMS" => Ok(TrackName::Gh1Guitar),
-            "PART GUITAR COOP" => Ok(TrackName::GuitarCoop),
-            "PART BASS" => Ok(TrackName::Bass),
-            "PART RHYTHM" => Ok(TrackName::Rhythm),
-            "PART KEYS" => Ok(TrackName::Keys),
-            "PART REAL_GUITAR" => Ok(TrackName::ProGuitar17Fret),
-            "PART REAL_GUITAR_22" => Ok(TrackName::ProGuitar22Fret),
-            "PART REAL_BASS" => Ok(TrackName::ProBass17Fret),
-            "PART REAL_BASS_22" => Ok(TrackName::ProBass22Fret),
-            "PART DRUMS" => Ok(TrackName::Drums),
-            "PART DRUM" => Ok(TrackName::Drums2),
-            "PART REAL_DRUMS_PS" => Ok(TrackName::DrumsReal),
-            "PART GUITAR GHL" => Ok(TrackName::GhlGuitar),
-            "PART BASS GHL" => Ok(TrackName::GhlBass),
-            "PART RHYTHM GHL" => Ok(TrackName::GhlRhythm),
-            "PART GUITAR COOP GHL" => Ok(TrackName::GhlGuitarCoop),
-            "PART VOCALS" => Ok(TrackName::Vocals),
-            "HARM1" => Ok(TrackName::Harmony1),
-            "HARM2" => Ok(TrackName::Harmony2),
-            "HARM3" => Ok(TrackName::Harmony3),
-            "PART HARM1" => Ok(TrackName::Harmony1_2),
-            "PART HARM2" => Ok(TrackName::Harmony2_2),
-            "PART HARM3" => Ok(TrackName::Harmony3_2),
-            "PART REAL_KEYS_X" => Ok(TrackName::ProKeysExpert),
-            "PART REAL_KEYS_H" => Ok(TrackName::ProKeysHard),
-            "PART REAL_KEYS_M" => Ok(TrackName::ProKeysMedium),
-            "PART REAL_KEYS_E" => Ok(TrackName::ProKeysEasy),
-            "" => Ok(TrackName::Meta),
-            _ => Err("Not found".parse().unwrap_err()),
+            "BEAT" => Ok(MoonTrackName::Beat),
+            "EVENTS" => Ok(MoonTrackName::Events),
+            "VENUE" => Ok(MoonTrackName::Venue),
+            "PART GUITAR" => Ok(MoonTrackName::Guitar),
+            "T1 GEMS" => Ok(MoonTrackName::Gh1Guitar),
+            "PART GUITAR COOP" => Ok(MoonTrackName::GuitarCoop),
+            "PART BASS" => Ok(MoonTrackName::Bass),
+            "PART RHYTHM" => Ok(MoonTrackName::Rhythm),
+            "PART KEYS" => Ok(MoonTrackName::Keys),
+            "PART REAL_GUITAR" => Ok(MoonTrackName::ProGuitar17Fret),
+            "PART REAL_GUITAR_22" => Ok(MoonTrackName::ProGuitar22Fret),
+            "PART REAL_BASS" => Ok(MoonTrackName::ProBass17Fret),
+            "PART REAL_BASS_22" => Ok(MoonTrackName::ProBass22Fret),
+            "PART DRUMS" => Ok(MoonTrackName::Drums),
+            "PART DRUM" => Ok(MoonTrackName::Drums2),
+            "PART REAL_DRUMS_PS" => Ok(MoonTrackName::DrumsReal),
+            "PART GUITAR GHL" => Ok(MoonTrackName::GhlGuitar),
+            "PART BASS GHL" => Ok(MoonTrackName::GhlBass),
+            "PART RHYTHM GHL" => Ok(MoonTrackName::GhlRhythm),
+            "PART GUITAR COOP GHL" => Ok(MoonTrackName::GhlGuitarCoop),
+            "PART VOCALS" => Ok(MoonTrackName::Vocals),
+            "HARM1" => Ok(MoonTrackName::Harmony1),
+            "HARM2" => Ok(MoonTrackName::Harmony2),
+            "HARM3" => Ok(MoonTrackName::Harmony3),
+            "PART HARM1" => Ok(MoonTrackName::Harmony1_2),
+            "PART HARM2" => Ok(MoonTrackName::Harmony2_2),
+            "PART HARM3" => Ok(MoonTrackName::Harmony3_2),
+            "PART REAL_KEYS_X" => Ok(MoonTrackName::ProKeysExpert),
+            "PART REAL_KEYS_H" => Ok(MoonTrackName::ProKeysHard),
+            "PART REAL_KEYS_M" => Ok(MoonTrackName::ProKeysMedium),
+            "PART REAL_KEYS_E" => Ok(MoonTrackName::ProKeysEasy),
+            _ => Ok(MoonTrackName::Meta),
         }
     }
 }

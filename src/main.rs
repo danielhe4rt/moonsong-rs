@@ -2,15 +2,12 @@
 
 mod midi;
 
-use crate::midi::track_name::TrackName;
-use midly::MetaMessage::{MidiChannel, TrackName as TrackNameMeta};
-use midly::TrackEventKind::Meta;
-use midly::num::u7;
-use midly::{MidiMessage, Smf, TrackEventKind};
+use midly::Smf;
 use regex::Regex;
 use rustly_lane::midi::get_track_name;
+use rustly_lane::midi::track_name::MoonTrackName;
 use rustly_lane::moonsong::Moonsong;
-use rustly_lane::parsers::{parse_events, parse_tempo};
+use rustly_lane::parsers::{parse_events, parse_notes, parse_tempo};
 use std::fmt::Debug;
 use std::str::FromStr;
 
@@ -26,75 +23,29 @@ fn main() {
         let Some(name) = name else {
             // TODO: Track zero still unknown for me. Remember to ask Nathanator for help.
             // TODO: Track Zero contains the name and tempo/bpm changes of the song
-            println!("[EVENT NOT FOUND] Track {} has no name. Please investigate.", i);
+            println!(
+                "[EVENT NOT FOUND] Track {} has no name. Please investigate.",
+                i
+            );
 
             continue;
         };
 
-        //println!("track {} has name {:#?}", i, name);
         println!("{:?}", name);
         match name {
-            TrackName::Events => {
+            MoonTrackName::Events => {
                 parse_events(&mut moonsong, track);
             }
-            TrackName::Meta => {
+            MoonTrackName::Meta => {
                 parse_tempo(&mut moonsong, track);
             }
-            _ => {}
-        };
-
-        continue;
-
-        println!("track {} has name {:#?}", i, name);
-
-        println!("track {} has {} events", i, track.len());
-        let mut easy_notes: Vec<(u7, u32)> = Vec::new();
-        let mut medium_notes: Vec<(u7, u32)> = Vec::new();
-        let mut hard_notes: Vec<(u7, u32)> = Vec::new();
-        let mut expert_notes: Vec<(u7, u32)> = Vec::new();
-
-        let mut time = 0;
-
-        for event in track.iter() {
-            time += event.delta.as_int();
-
-            match event.kind {
-                Meta(kind) => match kind {
-                    TrackNameMeta(name) => {
-                        let track_name = std::str::from_utf8(name).unwrap().as_str();
-                        //println!("Track Name: {:?}", track_name);
-                    }
-                    MidiChannel(channel) => {
-                        // println!("Midi Channel: {:?}", channel);
-                    }
-                    _ => {}
-                },
-                TrackEventKind::Midi { channel, message } => match message {
-                    MidiMessage::NoteOn { key, vel } | MidiMessage::NoteOff { key, vel } => {
-                        let key_value = key.as_int();
-                        if (60..=71).contains(&key_value) {
-                            easy_notes.push((key, time));
-                        } else if (72..=83).contains(&key_value) {
-                            medium_notes.push((key, time));
-                        } else if (84..=95).contains(&key_value) {
-                            hard_notes.push((key, time));
-                        } else if (96..=107).contains(&key_value) {
-                            expert_notes.push((key, time));
-                        }
-                    }
-                    _ => {}
-                },
-                _ => {}
+            _ => {
+                parse_notes(&mut moonsong, name, track);
             }
-        }
-        println!("Easy Notes: {:#?}", easy_notes.len());
-        println!("Medium Notes: {:#?}", medium_notes.len());
-        println!("Hard Notes: {:#?}", hard_notes.len());
-        println!("Expert Notes: {:#?}", expert_notes.len());
-        println!("-----------------------------------");
+        };
     }
 
-    // println!("Moonsong: {:#?}", moonsong);
+    moonsong.overview();
 }
 
 fn get_resolution(smf: &Smf) -> u16 {
