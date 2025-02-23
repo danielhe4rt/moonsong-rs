@@ -42,9 +42,9 @@ pub struct MoonTempo {
 
 #[derive(Debug)]
 pub struct Moonsong {
-    pub name: String,           // name of the song
-    pub resolution: u16,        // ticks per beat
-    pub tracks: Vec<MoonTrack>, // Instruments w/ notes
+    pub name: String,                              // name of the song
+    pub resolution: u16,                           // ticks per beat
+    pub tracks: HashMap<MoonTrackName, MoonTrack>, // Instruments w/ notes
     // TODO: ask related to Events vs Sections
     pub events: Vec<TrackEvent>,       // Events in the song
     pub tempo_changes: Vec<MoonTempo>, // BPM changes
@@ -58,7 +58,7 @@ impl Moonsong {
         println!(" -> [Moonsong] Time in Seconds: {}", self.time_in_seconds);
         println!(" -> [Moonsong] Tempo Changes: {}", self.tempo_changes.len());
         println!(" -> [Moonsong] Events: {}", self.events.len());
-        for track in self.tracks.iter() {
+        for (name, track) in self.tracks.iter() {
             track.overview();
         }
     }
@@ -69,7 +69,7 @@ impl Moonsong {
         Self {
             name: String::new(),
             resolution,
-            tracks: Vec::new(),
+            tracks: HashMap::new(),
             events: Vec::new(),
             tempo_changes: Vec::new(),
             time_in_seconds: 0,
@@ -84,11 +84,68 @@ impl Moonsong {
         self.events.push(track);
     }
 
-    pub fn set_time_in_seconds(&mut self, delta_ticks: u32) {
-        let bpm = 120;
-        let seconds_per_beat = 60.0 / bpm as f32;
-        let delta_beats = delta_ticks / self.resolution as u32;
-        self.time_in_seconds = (delta_beats as f32 * seconds_per_beat) as u32;
+    pub fn set_time_in_seconds(&mut self) {
+        let mut seconds = 0f32;
+        let mut last_time = 0;
+
+        // Find the last event time across all tracks and events
+        for (_, track) in self.tracks.iter() {
+            for (_, lane) in track.lanes.iter() {
+                match lane.notes.last() {
+                    Some(note) => {
+                        last_time = last_time.max(note.time);
+                    }
+                    None => {}
+                }
+            }
+        }
+        println!("Last Time: {}", last_time);
+        for event in &self.events {
+            last_time = last_time.max(event.time);
+        }
+
+        // If no tempo changes, use default tempo
+        if self.tempo_changes.is_empty() {
+            println!("No tempo changes found, using default tempo");
+            let seconds_per_beat = 60.0 / 120.0; // Default 120 BPM
+            let total_beats = last_time as f32 / self.resolution as f32;
+            seconds = total_beats * seconds_per_beat;
+            self.time_in_seconds = seconds.ceil() as u32;
+            return;
+        }
+
+        // Sort tempo changes by time for easier lookup
+        self.tempo_changes.sort_by_key(|tempo| tempo.time);
+
+        // Handle time before first tempo change
+        if self.tempo_changes[0].time > 0 {
+            let delta_ticks = self.tempo_changes[0].time;
+            let seconds_per_beat = 60.0 / 120.0; // Default 120 BPM
+            let delta_beats = delta_ticks as f32 / self.resolution as f32;
+            seconds += delta_beats * seconds_per_beat;
+        }
+
+        // Calculate time using tempo changes
+        for i in 0..self.tempo_changes.len() {
+            let current_tempo = self.tempo_changes[i].bpm;
+            let current_time = self.tempo_changes[i].time;
+
+            let next_time = if i + 1 < self.tempo_changes.len() {
+                self.tempo_changes[i + 1].time
+            } else {
+                last_time
+            };
+
+            if next_time > current_time {
+                // Only calculate if there's a positive time difference
+                let delta_ticks = next_time - current_time;
+                let seconds_per_beat = 60.0 / current_tempo;
+                let delta_beats = delta_ticks as f32 / self.resolution as f32;
+                seconds += delta_beats * seconds_per_beat;
+            }
+        }
+
+        self.time_in_seconds = seconds.ceil() as u32;
     }
 }
 
@@ -114,7 +171,7 @@ pub struct MoonLane {
 #[derive(Debug)]
 pub struct MoonTrack {
     name: MoonTrackName,
-    pub(crate) lanes: HashMap<MoonDifficulty, MoonLane>,
+    pub lanes: HashMap<MoonDifficulty, MoonLane>,
 }
 
 impl MoonTrack {
@@ -161,6 +218,14 @@ impl MoonLane {
             self.count_on_notes(),
             self.count_off_notes()
         );
+
+        // for note in self.notes.iter() {
+        //     println!(
+        //         "     -> [Note] Key: {} | State: {} | Time: {} | Delta: {}",
+        //         note.key, note.note_state, note.time, note.delta
+        //     );
+        // }
+
         println!(" ----------------- ");
     }
 }

@@ -6,7 +6,7 @@ use midly::Smf;
 use regex::Regex;
 use rustly_lane::midi::get_track_name;
 use rustly_lane::midi::track_name::MoonTrackName;
-use rustly_lane::moonsong::Moonsong;
+use rustly_lane::moonsong::{MoonDifficulty, Moonsong};
 use rustly_lane::parsers::{parse_events, parse_notes, parse_tempo};
 use std::fmt::Debug;
 use std::str::FromStr;
@@ -31,7 +31,6 @@ fn main() {
             continue;
         };
 
-        println!("{:?}", name);
         match name {
             MoonTrackName::Events => {
                 parse_events(&mut moonsong, track);
@@ -45,7 +44,9 @@ fn main() {
         };
     }
 
+    moonsong.set_time_in_seconds();
     moonsong.overview();
+
 }
 
 fn get_resolution(smf: &Smf) -> u16 {

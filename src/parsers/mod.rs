@@ -81,7 +81,7 @@ pub fn parse_events(moonsong: &mut Moonsong, track: &Track) {
 pub fn parse_notes(moonsong: &mut Moonsong, track_name: MoonTrackName, track: &Track) {
     let mut absolute_time = 0;
 
-    let mut moon_track = MoonTrack::new(track_name);
+    let mut moon_track = MoonTrack::new(track_name.clone());
     for event in track.iter() {
         absolute_time += event.delta.as_int();
 
@@ -90,23 +90,24 @@ pub fn parse_notes(moonsong: &mut Moonsong, track_name: MoonTrackName, track: &T
                 channel: _,
                 message,
             } => match message {
-                MidiMessage::NoteOn { key, vel } | MidiMessage::NoteOff { key, vel } => {
-                    let note_state = if message.eq(&MidiMessage::NoteOn { key, vel }) {
-                        true
-                    } else {
-                        false
-                    };
+                MidiMessage::NoteOn { key, vel } => {
                     let key_value = key.as_int();
                     let difficulty = MoonDifficulty::get_difficulty(&key_value);
 
                     let lane = moon_track.lanes.get_mut(&difficulty).unwrap();
-                    lane.add_note(key_value, note_state, event.delta.as_int(), absolute_time);
+                    lane.add_note(key_value, true, event.delta.as_int(), absolute_time);
+                }
+                MidiMessage::NoteOff { key, vel } => {
+                    let key_value = key.as_int();
+                    let difficulty = MoonDifficulty::get_difficulty(&key_value);
+
+                    let lane = moon_track.lanes.get_mut(&difficulty).unwrap();
+                    lane.add_note(key_value, false, event.delta.as_int(), absolute_time);
                 }
                 _ => {}
             },
             _ => {}
         }
     }
-
-    moonsong.tracks.push(moon_track);
+    moonsong.tracks.insert(track_name, moon_track);
 }

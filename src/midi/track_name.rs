@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub enum MoonTrackName {
     Meta,
     Events,
